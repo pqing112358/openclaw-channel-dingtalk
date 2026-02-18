@@ -1497,11 +1497,15 @@ export const dingtalkPlugin: DingTalkChannelPlugin = {
       }
 
       try {
+        // Resolve ~ in file paths (e.g., ~/path/to/file -> /home/user/path/to/file)
+        const resolvedMediaPath = resolveUserPath(actualMediaPath);
+        getLogger()?.debug?.(`[DingTalk] Resolved media path: ${actualMediaPath} -> ${resolvedMediaPath}`);
+
         // Detect media type from file extension if not provided
-        const mediaType = providedMediaType || detectMediaTypeFromExtension(actualMediaPath);
+        const mediaType = providedMediaType || detectMediaTypeFromExtension(resolvedMediaPath);
 
         // Send as native media via proactive API
-        const result = await sendProactiveMedia(config, to, actualMediaPath, mediaType, { log, accountId });
+        const result = await sendProactiveMedia(config, to, resolvedMediaPath, mediaType, { log, accountId });
         getLogger()?.debug?.(
           `[DingTalk] sendMedia: ${mediaType} file=${actualMediaPath} result: ${JSON.stringify(result)}`
         );
